@@ -6,37 +6,36 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.animalia.R
 import com.example.animalia.data.AnimalCategory
 
 class CardActivityFragment : Fragment() {
 
     private lateinit var category: AnimalCategory
-    private lateinit var gridBoard: GridLayout
+    private lateinit var recycler: RecyclerView
 
     private var firstCard: View? = null
     private var secondCard: View? = null
-
     private var isBusy = false
     private var score = 0
 
     companion object {
-        var lastScore = 0   // ← Aquí se guarda el puntaje final
-
+        var lastScore = 0
         private const val ARG_CATEGORY = "animal_category"
 
         fun newInstance(category: AnimalCategory): CardActivityFragment {
-            val fragment = CardActivityFragment()
-            val args = Bundle()
-            args.putSerializable(ARG_CATEGORY, category)
-            fragment.arguments = args
-            return fragment
+            return CardActivityFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_CATEGORY, category)
+                }
+            }
         }
     }
 
@@ -50,48 +49,66 @@ class CardActivityFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        gridBoard = view.findViewById(R.id.game_board_container)
+        recycler = view.findViewById(R.id.recycler_cards)
+        category = requireArguments().getSerializable(ARG_CATEGORY) as AnimalCategory
 
-        arguments?.let {
-            category = it.getSerializable(ARG_CATEGORY) as AnimalCategory
-        }
-
-        initGame()
+        startGame()
     }
 
-    // -----------------------------
-    //     INICIO DEL JUEGO
-    // -----------------------------
-    private fun initGame() {
-        val cards = getCardsForCategory(category)
-        val duplicated = (cards + cards).shuffled()
+    // =============================================================
+    // INICIO DEL JUEGO
+    // =============================================================
+    private fun startGame() {
 
-        gridBoard.removeAllViews()
+        val baseList = getCardsForCategory(category)
 
-        for (item in duplicated) {
-            val cardView = layoutInflater.inflate(R.layout.item_card, gridBoard, false)
-            val img = cardView.findViewById<ImageView>(R.id.card_image)
-            val txt = cardView.findViewById<TextView>(R.id.card_text)
+        // YA SON 10 cartas (5 pares), no duplicar
+        val shuffled = baseList.shuffled()
 
-            img.visibility = View.INVISIBLE
-            txt.visibility = View.INVISIBLE
+        recycler.layoutManager = GridLayoutManager(requireContext(), 2)
+        recycler.setHasFixedSize(true)
+        recycler.adapter = CardAdapter(shuffled)
+    }
+
+    // =============================================================
+    // ADAPTER
+    // =============================================================
+    inner class CardAdapter(private val items: List<CardItem>) :
+        RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
+
+        inner class CardViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+            val img = v.findViewById<ImageView>(R.id.card_image)
+            val txt = v.findViewById<TextView>(R.id.card_text)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
+            val v = layoutInflater.inflate(R.layout.item_card, parent, false)
+            return CardViewHolder(v)
+        }
+
+        override fun onBindViewHolder(h: CardViewHolder, pos: Int) {
+            val item = items[pos]
+
+            // Asegurar que inicien ocultas
+            h.img.visibility = View.INVISIBLE
+            h.txt.visibility = View.INVISIBLE
 
             if (item.isImage) {
-                img.setImageResource(item.value)
+                h.img.setImageResource(item.value)
             } else {
-                txt.text = item.text
+                h.txt.text = item.text
             }
 
-            cardView.tag = item.pairId
-
-            cardView.setOnClickListener { handleCardClick(cardView) }
-            gridBoard.addView(cardView)
+            h.itemView.tag = item.pairId
+            h.itemView.setOnClickListener { handleCardClick(h.itemView) }
         }
+
+        override fun getItemCount() = items.size
     }
 
-    // -----------------------------
-    //      LÓGICA DE CLICKS
-    // -----------------------------
+    // =============================================================
+    // LÓGICA DE CLICS
+    // =============================================================
     private fun handleCardClick(card: View) {
         if (isBusy) return
         if (card == firstCard) return
@@ -106,37 +123,52 @@ class CardActivityFragment : Fragment() {
 
             Handler(Looper.getMainLooper()).postDelayed({
                 checkMatch()
-            }, 800)
+            }, 600)
         }
     }
 
     private fun showCard(card: View) {
         card.findViewById<ImageView>(R.id.card_image).visibility = View.VISIBLE
         card.findViewById<TextView>(R.id.card_text).visibility = View.VISIBLE
-        card.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.card_default_bg))
+
+        card.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.card_default_bg)
+        )
     }
 
     private fun hideCard(card: View) {
         card.findViewById<ImageView>(R.id.card_image).visibility = View.INVISIBLE
         card.findViewById<TextView>(R.id.card_text).visibility = View.INVISIBLE
-        card.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+
+        card.setBackgroundColor(
+            ContextCompat.getColor(requireContext(), android.R.color.black)
+        )
     }
 
-    // -----------------------------
-    //       REVISAR SI HACE MATCH
-    // -----------------------------
+    // =============================================================
+    // VALIDACIÓN DE PARES
+    // =============================================================
     private fun checkMatch() {
-        val tag1 = firstCard?.tag as Int
-        val tag2 = secondCard?.tag as Int
+        val id1 = firstCard?.tag as Int
+        val id2 = secondCard?.tag as Int
 
-        if (tag1 == tag2) {
-            score += 10
-            Toast.makeText(requireContext(), "¡Correcto! +10 puntos", Toast.LENGTH_SHORT).show()
+        if (id1 == id2) {
+            // Correcto
+            score += 30
+            lastScore = score
 
             firstCard?.setOnClickListener(null)
             secondCard?.setOnClickListener(null)
 
+            Toast.makeText(requireContext(), "¡Correcto!", Toast.LENGTH_SHORT).show()
+
+            // Si llegó a 50 → ganó
+            if (score == 90) {
+                goToScoreScreen()
+            }
+
         } else {
+            // Incorrecto
             hideCard(firstCard!!)
             hideCard(secondCard!!)
         }
@@ -144,28 +176,23 @@ class CardActivityFragment : Fragment() {
         firstCard = null
         secondCard = null
         isBusy = false
-
-        // -------------------------------
-        //   ⚡ GUARDAR PUNTAJE FINAL
-        // -------------------------------
-        if (allCardsMatched()) {
-            lastScore = score
-            Toast.makeText(requireContext(), "Juego terminado. Puntaje: $score", Toast.LENGTH_LONG).show()
-        }
     }
 
-    // -----------------------------
-    //   VERIFICAR SI TERMINÓ EL JUEGO
-    // -----------------------------
-    private fun allCardsMatched(): Boolean {
-        return (0 until gridBoard.childCount).all { index ->
-            gridBoard.getChildAt(index).hasOnClickListeners().not()
-        }
+    // =============================================================
+    // IR A LA PANTALLA DE SCORE
+    // =============================================================
+    private fun goToScoreScreen() {
+        val fragment = ScoreFragment.newInstance(category)
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
-    // -----------------------------
-    //   GENERAR PARES DE CARTAS
-    // -----------------------------
+    // =============================================================
+    // DATOS DE LAS CARTAS (5 pares)
+    // =============================================================
     data class CardItem(
         val pairId: Int,
         val isImage: Boolean,
@@ -185,6 +212,7 @@ class CardActivityFragment : Fragment() {
 
                 CardItem(3, true, R.drawable.card_dog),
                 CardItem(3, false, 0, "Canis lupus familiaris")
+
             )
 
             AnimalCategory.AQUATIC -> listOf(
@@ -194,9 +222,9 @@ class CardActivityFragment : Fragment() {
                 CardItem(2, true, R.drawable.card_dolphin),
                 CardItem(2, false, 0, "Delphinus delphis"),
 
-                // 🐋 Manatí (nuevo)
                 CardItem(3, true, R.drawable.card_manatee),
                 CardItem(3, false, 0, "Trichechus manatus")
+
             )
 
             AnimalCategory.AERIAL -> listOf(
@@ -206,9 +234,9 @@ class CardActivityFragment : Fragment() {
                 CardItem(2, true, R.drawable.card_parrot),
                 CardItem(2, false, 0, "Psittaciformes"),
 
-                // 🦅 Cuervo (nuevo)
                 CardItem(3, true, R.drawable.card_crow),
-                CardItem(3, false, 0, "Corvus corax")
+                CardItem(3, false, 0, "Corvus corax"),
+
             )
 
             AnimalCategory.INSECTS -> listOf(
@@ -218,9 +246,9 @@ class CardActivityFragment : Fragment() {
                 CardItem(2, true, R.drawable.card_ant),
                 CardItem(2, false, 0, "Formicidae"),
 
-                // 🦗 Grillo (nuevo)
                 CardItem(3, true, R.drawable.card_cricket),
                 CardItem(3, false, 0, "Gryllidae")
+
             )
         }
     }

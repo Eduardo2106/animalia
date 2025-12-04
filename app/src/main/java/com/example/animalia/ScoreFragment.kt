@@ -50,10 +50,10 @@ class ScoreFragment : Fragment() {
         val score = CardActivityFragment.lastScore
         val categoryName = currentCategory
 
-        scoreText.text = "Tu puntaje final es: $score\nCategoría: $categoryName"
+        scoreText.text = "Tu puntaje es: $score\nCategoría: $categoryName"
 
-        progressBar.max = 100
-        progressBar.progress = score.coerceAtMost(100)
+        progressBar.max = 30
+        progressBar.progress = score.coerceAtMost(30)
 
         btnPlayAgain.setOnClickListener {
             parentFragmentManager.popBackStack()

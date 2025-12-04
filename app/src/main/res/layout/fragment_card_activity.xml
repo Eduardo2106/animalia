@@ -35,37 +35,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <ScrollView
+    <!-- ✔ Aquí va el RecyclerView REAL -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_cards"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="8dp"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/tv_instruction"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <GridLayout
-            android:id="@+id/game_board_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="4"
-            android:rowCount="3"
-            android:alignmentMode="alignMargins"
-            android:columnOrderPreserved="false"
-            android:padding="4dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Las tarjetas se crearán aquí usando Kotlin."
-                android:textSize="16sp"
-                android:padding="32dp"
-                android:layout_columnSpan="4"
-                android:gravity="center"
-                android:textStyle="italic"/>
-
-        </GridLayout>
-    </ScrollView>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
