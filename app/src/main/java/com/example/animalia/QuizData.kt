@@ -195,10 +195,10 @@ object QuizRepository {
     // Función para obtener las preguntas según la categoría
     fun getQuestions(category: AnimalCategory): List<QuizQuestion> {
         return when (category) {
-            AnimalCategory.TERRESTRIAL -> terrestrialQuestions // Animales terrestres (mamíferos grandes)
-            AnimalCategory.AQUATIC -> aquaticQuestions
-            AnimalCategory.AERIAL -> aerialQuestions
-            AnimalCategory.INSECTS -> insectQuestions // Mapeamos INSECTS a las preguntas de insectos
+            AnimalCategory.TERRESTRES -> terrestrialQuestions // Animales terrestres (mamíferos grandes)
+            AnimalCategory.ACUATICOS -> aquaticQuestions
+            AnimalCategory.AEREOS -> aerialQuestions
+            AnimalCategory.INSECTOS -> insectQuestions // Mapeamos INSECTS a las preguntas de insectos
         }
     }
 }

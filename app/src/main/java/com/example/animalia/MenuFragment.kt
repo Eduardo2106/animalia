@@ -29,10 +29,10 @@ class MenuFragment : Fragment() {
         val cardAereos: CardView = view.findViewById(R.id.card_aereos)
         val cardInsectos: CardView = view.findViewById(R.id.card_insectos)
 
-        setupCategoryCard(cardTerrestres, AnimalCategory.TERRESTRIAL)
-        setupCategoryCard(cardAcuaticos, AnimalCategory.AQUATIC)
-        setupCategoryCard(cardAereos, AnimalCategory.AERIAL)
-        setupCategoryCard(cardInsectos, AnimalCategory.INSECTS)
+        setupCategoryCard(cardTerrestres, AnimalCategory.TERRESTRES)
+        setupCategoryCard(cardAcuaticos, AnimalCategory.ACUATICOS)
+        setupCategoryCard(cardAereos, AnimalCategory.AEREOS)
+        setupCategoryCard(cardInsectos, AnimalCategory.INSECTOS)
     }
 
     private fun setupCategoryCard(cardView: CardView, category: AnimalCategory) {

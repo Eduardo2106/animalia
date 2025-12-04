@@ -135,7 +135,7 @@ class CardActivityFragment : Fragment() {
         card.findViewById<TextView>(R.id.card_text).visibility = View.INVISIBLE
 
         card.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), android.R.color.black)
+            ContextCompat.getColor(requireContext(), android.R.color.white)
         )
     }
 
@@ -193,7 +193,7 @@ class CardActivityFragment : Fragment() {
     private fun getCardsForCategory(cat: AnimalCategory): List<CardItem> {
         return when (cat) {
 
-            AnimalCategory.TERRESTRIAL -> listOf(
+            AnimalCategory.TERRESTRES -> listOf(
                 CardItem(1, true, R.drawable.card_lion),
                 CardItem(1, false, 0, "Panthera leo"),
                 CardItem(2, true, R.drawable.card_elephant),
@@ -202,7 +202,7 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, false, 0, "Canis lupus familiaris")
             )
 
-            AnimalCategory.AQUATIC -> listOf(
+            AnimalCategory.ACUATICOS -> listOf(
                 CardItem(1, true, R.drawable.card_shark),
                 CardItem(1, false, 0, "Carcharodon carcharias"),
                 CardItem(2, true, R.drawable.card_dolphin),
@@ -211,7 +211,7 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, false, 0, "Trichechus manatus")
             )
 
-            AnimalCategory.AERIAL -> listOf(
+            AnimalCategory.AEREOS -> listOf(
                 CardItem(1, true, R.drawable.card_eagle),
                 CardItem(1, false, 0, "Aquila chrysaetos"),
                 CardItem(2, true, R.drawable.card_parrot),
@@ -220,7 +220,7 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, false, 0, "Corvus corax"),
             )
 
-            AnimalCategory.INSECTS -> listOf(
+            AnimalCategory.INSECTOS -> listOf(
                 CardItem(1, true, R.drawable.card_bee),
                 CardItem(1, false, 0, "Apis mellifera"),
                 CardItem(2, true, R.drawable.card_ant),

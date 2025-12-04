@@ -5,8 +5,8 @@ import java.io.Serializable
 
 // Enum de las categorías de animales que tienes
 enum class AnimalCategory : Serializable {
-    TERRESTRIAL, // Terrestres
-    AQUATIC,     // Acuáticos
-    AERIAL,       // Aves
-    INSECTS      // Insectos
+    TERRESTRES, // Terrestres
+    ACUATICOS,     // Acuáticos
+    AEREOS,       // Aves
+    INSECTOS      // Insectos
 }
