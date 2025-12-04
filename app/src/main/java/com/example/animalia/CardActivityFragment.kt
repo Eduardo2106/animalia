@@ -27,7 +27,6 @@ class CardActivityFragment : Fragment() {
     private var score = 0
 
     companion object {
-        var lastScore = 0
         private const val ARG_CATEGORY = "animal_category"
 
         fun newInstance(category: AnimalCategory): CardActivityFragment {
@@ -55,19 +54,15 @@ class CardActivityFragment : Fragment() {
         startGame()
     }
 
-    // =============================================================
-    // INICIO DEL JUEGO
-    // =============================================================
     private fun startGame() {
-
         val baseList = getCardsForCategory(category)
-
-        // YA SON 10 cartas (5 pares), no duplicar
         val shuffled = baseList.shuffled()
 
         recycler.layoutManager = GridLayoutManager(requireContext(), 2)
         recycler.setHasFixedSize(true)
         recycler.adapter = CardAdapter(shuffled)
+
+        score = 0
     }
 
     // =============================================================
@@ -89,7 +84,6 @@ class CardActivityFragment : Fragment() {
         override fun onBindViewHolder(h: CardViewHolder, pos: Int) {
             val item = items[pos]
 
-            // Asegurar que inicien ocultas
             h.img.visibility = View.INVISIBLE
             h.txt.visibility = View.INVISIBLE
 
@@ -153,22 +147,18 @@ class CardActivityFragment : Fragment() {
         val id2 = secondCard?.tag as Int
 
         if (id1 == id2) {
-            // Correcto
             score += 30
-            lastScore = score
 
             firstCard?.setOnClickListener(null)
             secondCard?.setOnClickListener(null)
 
             Toast.makeText(requireContext(), "¡Correcto!", Toast.LENGTH_SHORT).show()
 
-            // Si llegó a 50 → ganó
             if (score == 90) {
                 goToScoreScreen()
             }
 
         } else {
-            // Incorrecto
             hideCard(firstCard!!)
             hideCard(secondCard!!)
         }
@@ -182,7 +172,7 @@ class CardActivityFragment : Fragment() {
     // IR A LA PANTALLA DE SCORE
     // =============================================================
     private fun goToScoreScreen() {
-        val fragment = ScoreFragment.newInstance(category)
+        val fragment = ScoreFragment.newInstance(category, score)
 
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
@@ -206,49 +196,37 @@ class CardActivityFragment : Fragment() {
             AnimalCategory.TERRESTRIAL -> listOf(
                 CardItem(1, true, R.drawable.card_lion),
                 CardItem(1, false, 0, "Panthera leo"),
-
                 CardItem(2, true, R.drawable.card_elephant),
                 CardItem(2, false, 0, "Loxodonta africana"),
-
                 CardItem(3, true, R.drawable.card_dog),
                 CardItem(3, false, 0, "Canis lupus familiaris")
-
             )
 
             AnimalCategory.AQUATIC -> listOf(
                 CardItem(1, true, R.drawable.card_shark),
                 CardItem(1, false, 0, "Carcharodon carcharias"),
-
                 CardItem(2, true, R.drawable.card_dolphin),
                 CardItem(2, false, 0, "Delphinus delphis"),
-
                 CardItem(3, true, R.drawable.card_manatee),
                 CardItem(3, false, 0, "Trichechus manatus")
-
             )
 
             AnimalCategory.AERIAL -> listOf(
                 CardItem(1, true, R.drawable.card_eagle),
                 CardItem(1, false, 0, "Aquila chrysaetos"),
-
                 CardItem(2, true, R.drawable.card_parrot),
                 CardItem(2, false, 0, "Psittaciformes"),
-
                 CardItem(3, true, R.drawable.card_crow),
                 CardItem(3, false, 0, "Corvus corax"),
-
             )
 
             AnimalCategory.INSECTS -> listOf(
                 CardItem(1, true, R.drawable.card_bee),
                 CardItem(1, false, 0, "Apis mellifera"),
-
                 CardItem(2, true, R.drawable.card_ant),
                 CardItem(2, false, 0, "Formicidae"),
-
                 CardItem(3, true, R.drawable.card_cricket),
                 CardItem(3, false, 0, "Gryllidae")
-
             )
         }
     }
