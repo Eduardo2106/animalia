@@ -8,11 +8,14 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.example.animalia.ui.QuizFragment
+import androidx.fragment.app.FragmentManager // Importar FragmentManager para popBackStack
 import com.example.animalia.R
 import com.example.animalia.data.AnimalCategory
 
 class ScoreFragment : Fragment() {
+
+    // Necesitas asegurar que QuizFragment esté accesible
+    // import com.example.animalia.ui.QuizFragment
 
     companion object {
         private const val ARG_CATEGORY = "animal_category"
@@ -41,6 +44,7 @@ class ScoreFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup ?,
         savedInstanceState: Bundle?
     ): View? {
+        // Asegúrate de que R.layout.fragment_score exista y tenga el diseño de botones
         return inflater.inflate(R.layout.fragment_score, container, false)
     }
 
@@ -51,39 +55,51 @@ class ScoreFragment : Fragment() {
         val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
         val btnPlayAgain = view.findViewById<Button>(R.id.btn_play_again)
         val btnGoToQuiz = view.findViewById<Button>(R.id.btn_go_to_quiz)
+        val btnGoToMenu = view.findViewById<Button>(R.id.btn_go_to_menu) // 🆕 NUEVO BOTÓN
         val tvCategoryInfo = view.findViewById<TextView>(R.id.tv_category_info)
 
         val score = finalScore
         val categoryName = currentCategory
 
-        // Ajustado para el nuevo diseño (muestra solo el número y "pts")
         scoreText.text = "$score\npts"
 
-        // Muestra la categoría
         tvCategoryInfo.text = "Categoría: ${categoryName.toString()}"
 
 
         progressBar.max = 90
         progressBar.progress = score
 
-        // Vuelve al fragmento anterior (tablero finalizado)
+        // 🕹️ 1. Volver a Jugar (Vuelve al último CardActivityFragment)
         btnPlayAgain.setOnClickListener {
+            // Elimina ScoreFragment, revelando CardActivityFragment
             parentFragmentManager.popBackStack()
         }
 
-        // Navega al Quiz, pasando la categoría
+        // 🕹️ 2. Ir a Quiz (Navega a la pantalla de preguntas)
         btnGoToQuiz.setOnClickListener {
             currentCategory?.let { category ->
                 goToQuizScreen(category)
             }
         }
+
+        // 🕹️ 3. Cambiar Categoría (Vuelve al Menú Inicial)
+        btnGoToMenu.setOnClickListener {
+            goToMainMenu()
+        }
     }
 
     private fun goToQuizScreen(category: AnimalCategory) {
+        // Asegúrate de que QuizFragment esté definido y la importación sea correcta
         val fragment = QuizFragment.newInstance(category)
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun goToMainMenu() {
+        // 🎯 Elimina *todos* los fragmentos de la pila de retroceso
+        // Esto regresa al fragmento base (que asumimos es el menú de categorías)
+        parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 }

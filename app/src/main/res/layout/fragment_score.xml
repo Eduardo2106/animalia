@@ -64,7 +64,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.85" />
+        app:layout_constraintGuide_percent="0.7" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_go_to_quiz"
@@ -82,13 +82,28 @@
         android:id="@+id/btn_play_again"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Volver al tablero"
+        android:text="Volver a Jugar"
         android:textSize="18sp"
         android:textAllCaps="false"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:textColor="@android:color/white"
         app:strokeColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/btn_go_to_quiz"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_go_to_menu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Cambiar Categoría"
+        android:textSize="18sp"
+        android:textAllCaps="false"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:textColor="@android:color/white"
+        app:strokeColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/btn_play_again"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"/>

@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
     app:cardUseCompatPadding="true"
-    app:cardElevation="1dp"
+    app:cardElevation="9dp"
     app:cardCornerRadius="10dp"
     app:cardBackgroundColor="@android:color/white">
 
@@ -19,7 +19,7 @@
         <ImageView
             android:id="@+id/card_image"
             android:layout_width="match_parent"
-            android:layout_height="170dp"
+            android:layout_height="200dp"
             android:scaleType="centerCrop"
             android:visibility="gone"/>
 
@@ -30,7 +30,7 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#000"
-            android:padding="6dp"
+            android:padding="4dp"
             android:visibility="gone"/>
 
     </LinearLayout>
