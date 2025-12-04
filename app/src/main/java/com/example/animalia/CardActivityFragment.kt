@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.animalia.R
 import com.example.animalia.data.AnimalCategory
-import com.example.animalia.ui.ScoreFragment // Asegúrate de que esta clase exista
+import android.media.MediaPlayer
 
 class CardActivityFragment : Fragment() {
 
@@ -25,13 +25,35 @@ class CardActivityFragment : Fragment() {
     private var secondCard: View? = null
     private var isBusy = false
 
-    // Contadores actualizados
-    private var pairsFound = 0 // Usamos esto para el 100% exacto (3 pares)
-    private var score = 0 // El score se actualizará a 100 al finalizar
+    private var pairsFound = 0      // Para saber cuando llegas al 100%
+    private var score = 0           // Score parcial
+    private val totalPairs = 3
+    private val scorePerPair = 33   // 33 * 3 = 99 → el último lo ajusta a 100
 
-    private val totalPairs = 3 // Definimos el total de pares
-    private val scorePerPair = 33 // Usado solo para el feedback visual durante el juego (33 * 3 = 99)
+    // ============================================================
+    // 🔊 MAPA DE SONIDOS — YA CORREGIDO
+    // ============================================================
+    private val soundMap: Map<Pair<AnimalCategory, Int>, Int> = mapOf(
+        // TERRESTRES
+        Pair(AnimalCategory.TERRESTRES, 1) to R.raw.leon,
+        Pair(AnimalCategory.TERRESTRES, 2) to R.raw.elefante,
+        Pair(AnimalCategory.TERRESTRES, 3) to R.raw.lobo,   // perro = lobo
 
+        // ACUÁTICOS
+        Pair(AnimalCategory.ACUATICOS, 1) to R.raw.tiburon,
+        Pair(AnimalCategory.ACUATICOS, 2) to R.raw.delfin,
+        Pair(AnimalCategory.ACUATICOS, 3) to R.raw.manati,
+
+        // AÉREOS
+        Pair(AnimalCategory.AEREOS, 1) to R.raw.aguila,
+        Pair(AnimalCategory.AEREOS, 2) to R.raw.loro,
+        Pair(AnimalCategory.AEREOS, 3) to R.raw.cuervo,
+
+        // INSECTOS
+        Pair(AnimalCategory.INSECTOS, 1) to R.raw.abeja,
+        // Pair(AnimalCategory.INSECTOS, 2) to R.raw.hormiga, // si NO tienes hormiga.mp3, déjala fuera
+        Pair(AnimalCategory.INSECTOS, 3) to R.raw.grillo
+    )
 
     companion object {
         private const val ARG_CATEGORY = "animal_category"
@@ -45,10 +67,7 @@ class CardActivityFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_card_activity, container, false)
     }
 
@@ -61,6 +80,43 @@ class CardActivityFragment : Fragment() {
         startGame()
     }
 
+    // ============================================================
+    // 🎵 SISTEMA DE REPRODUCCIÓN DE AUDIO
+    // ============================================================
+    private var mediaPlayer: MediaPlayer? = null
+
+    private fun playSound(category: AnimalCategory, pairId: Int) {
+        val soundRes = soundMap[Pair(category, pairId)] ?: return
+
+        mediaPlayer?.release()
+        mediaPlayer = MediaPlayer.create(requireContext(), soundRes)
+        mediaPlayer?.start()
+    }
+
+    private fun playVictorySound() {
+        val victoryRes = try {
+            R.raw.victoria
+        } catch (e: Exception) {
+            null
+        }
+
+        victoryRes?.let {
+            mediaPlayer?.release()
+            mediaPlayer = MediaPlayer.create(requireContext(), it)
+            mediaPlayer?.start()
+        }
+    }
+
+    override fun onDestroy() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+        super.onDestroy()
+    }
+
+
+    // ============================================================
+    // 🃏 INICIO DE PARTIDA
+    // ============================================================
     private fun startGame() {
         val baseList = getCardsForCategory(category)
         val shuffled = baseList.shuffled()
@@ -69,14 +125,14 @@ class CardActivityFragment : Fragment() {
         recycler.setHasFixedSize(true)
         recycler.adapter = CardAdapter(shuffled)
 
-        // Reiniciar contadores
         pairsFound = 0
         score = 0
     }
 
-    // =============================================================
-    // ADAPTER Y VIEWHOLDER (Sin Cambios)
-    // =============================================================
+
+    // ============================================================
+    // ♠ ADAPTER
+    // ============================================================
     inner class CardAdapter(private val items: List<CardItem>) :
         RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
 
@@ -111,10 +167,10 @@ class CardActivityFragment : Fragment() {
         override fun getItemCount() = items.size
     }
 
-    // =============================================================
-    // LÓGICA DE VISIBILIDAD DE LA TAPA (Sin Cambios)
-    // =============================================================
 
+    // ============================================================
+    // 🎯 LÓGICA PRINCIPAL DE MATCH
+    // ============================================================
     private fun handleCardClick(card: View) {
         if (isBusy) return
         if (card == firstCard) return
@@ -145,15 +201,18 @@ class CardActivityFragment : Fragment() {
         card.findViewById<View>(R.id.card_cover).visibility = View.VISIBLE
     }
 
-    // =============================================================
-    // VALIDACIÓN Y NAVEGACIÓN (Actualizado)
-    // =============================================================
+
+    // ============================================================
+    // ✔ VALIDACIÓN DE ACIERTOS
+    // ============================================================
     private fun checkMatch() {
         val id1 = firstCard?.tag as Int
         val id2 = secondCard?.tag as Int
 
         if (id1 == id2) {
-            // AUMENTAMOS EL CONTADOR DE PARES Y EL SCORE PARCIAL
+            // 🔊 REPRODUCE EL SONIDO DEL ANIMAL
+            playSound(category, id1)
+
             pairsFound++
             score += scorePerPair
 
@@ -162,14 +221,13 @@ class CardActivityFragment : Fragment() {
 
             Toast.makeText(requireContext(), "¡Correcto!", Toast.LENGTH_SHORT).show()
 
-            // 🎯 NUEVA LÓGICA: Comprobamos si se encontraron todos los pares
             if (pairsFound == totalPairs) {
-                score = 100 // Establecemos el puntaje final en 100 exacto
+                score = 100
+                playVictorySound()
                 goToScoreScreen()
             }
 
         } else {
-            // Si es incorrecto, llamamos a hideCard para taparlas con la Tapa Negra
             hideCard(firstCard!!)
             hideCard(secondCard!!)
         }
@@ -187,9 +245,10 @@ class CardActivityFragment : Fragment() {
             .commit()
     }
 
-    // =============================================================
-    // DATOS DE LAS CARTAS (Sin Cambios)
-    // =============================================================
+
+    // ============================================================
+    // 📦 LISTA DE CARTAS (SIN CAMBIOS)
+    // ============================================================
     data class CardItem(
         val pairId: Int,
         val isImage: Boolean,
@@ -198,7 +257,6 @@ class CardActivityFragment : Fragment() {
     )
 
     private fun getCardsForCategory(cat: AnimalCategory): List<CardItem> {
-        // ... (Tu función de datos original sigue aquí)
         return when (cat) {
             AnimalCategory.TERRESTRES -> listOf(
                 CardItem(1, true, R.drawable.card_lion),
@@ -208,6 +266,7 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, true, R.drawable.card_dog),
                 CardItem(3, false, 0, "Canis lupus familiaris")
             )
+
             AnimalCategory.ACUATICOS -> listOf(
                 CardItem(1, true, R.drawable.card_shark),
                 CardItem(1, false, 0, "Carcharodon carcharias"),
@@ -216,14 +275,16 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, true, R.drawable.card_manatee),
                 CardItem(3, false, 0, "Trichechus manatus")
             )
+
             AnimalCategory.AEREOS -> listOf(
                 CardItem(1, true, R.drawable.card_eagle),
                 CardItem(1, false, 0, "Aquila chrysaetos"),
                 CardItem(2, true, R.drawable.card_parrot),
                 CardItem(2, false, 0, "Psittaciformes"),
                 CardItem(3, true, R.drawable.card_crow),
-                CardItem(3, false, 0, "Corvus corax"),
+                CardItem(3, false, 0, "Corvus corax")
             )
+
             AnimalCategory.INSECTOS -> listOf(
                 CardItem(1, true, R.drawable.card_bee),
                 CardItem(1, false, 0, "Apis mellifera"),
