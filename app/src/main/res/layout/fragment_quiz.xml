@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/black">
+
+    <TextView
+        android:id="@+id/tv_quiz_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aprendiendo sobre Animales"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:layout_marginBottom="32dp"/>
+
+    <TextView
+        android:id="@+id/tv_quiz_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="[Aquí va la pregunta]"
+        android:textSize="20sp"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btn_option_a"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Opción A"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/design_default_color_primary"/>
+
+    <Button
+        android:id="@+id/btn_option_b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Opción B"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/design_default_color_primary"/>
+
+    <Button
+        android:id="@+id/btn_option_c"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Opción C"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="@color/design_default_color_primary"/>
+
+    <TextView
+        android:id="@+id/tv_quiz_explanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="[Explicación de la respuesta]"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:background="#222222"
+        android:visibility="gone"/>
+
+</LinearLayout>

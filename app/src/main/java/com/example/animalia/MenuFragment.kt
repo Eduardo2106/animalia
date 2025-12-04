@@ -39,7 +39,7 @@ class MenuFragment : Fragment() {
         // Configuramos el listener en toda la tarjeta
         cardView.setOnClickListener {
             // Navega al fragmento de juego y pasa la categoría seleccionada
-            val gameFragment = GameFragment.newInstance(category)
+            val gameFragment = CardActivityFragment.newInstance(category)
             (activity as? MainActivity)?.navigateTo(gameFragment, "GameFragment")
         }
     }
