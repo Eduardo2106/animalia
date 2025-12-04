@@ -29,23 +29,25 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="24dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.5">
 
         <TextView
-            android:id="@+id/tv_quiz_question"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="[Aquí va la pregunta]"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:gravity="center" android:layout_marginBottom="24dp"/>
+        android:id="@+id/tv_quiz_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="[Aquí va la pregunta]"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"/>
 
         <Button
             android:id="@+id/btn_option_a"
@@ -80,6 +82,7 @@
             android:textColor="@android:color/white"
             android:padding="16dp"
             android:gravity="center"
+            android:background="@color/_222222"
             android:visibility="gone"/>
 
     </LinearLayout>
