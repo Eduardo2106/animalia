@@ -9,12 +9,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.animalia.R
 import com.example.animalia.data.AnimalCategory
+import com.example.animalia.ui.ScoreFragment // Asegúrate de que esta clase exista
 
 class CardActivityFragment : Fragment() {
 
@@ -24,7 +24,14 @@ class CardActivityFragment : Fragment() {
     private var firstCard: View? = null
     private var secondCard: View? = null
     private var isBusy = false
-    private var score = 0
+
+    // Contadores actualizados
+    private var pairsFound = 0 // Usamos esto para el 100% exacto (3 pares)
+    private var score = 0 // El score se actualizará a 100 al finalizar
+
+    private val totalPairs = 3 // Definimos el total de pares
+    private val scorePerPair = 33 // Usado solo para el feedback visual durante el juego (33 * 3 = 99)
+
 
     companion object {
         private const val ARG_CATEGORY = "animal_category"
@@ -62,11 +69,13 @@ class CardActivityFragment : Fragment() {
         recycler.setHasFixedSize(true)
         recycler.adapter = CardAdapter(shuffled)
 
+        // Reiniciar contadores
+        pairsFound = 0
         score = 0
     }
 
     // =============================================================
-    // ADAPTER
+    // ADAPTER Y VIEWHOLDER (Sin Cambios)
     // =============================================================
     inner class CardAdapter(private val items: List<CardItem>) :
         RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
@@ -74,6 +83,7 @@ class CardActivityFragment : Fragment() {
         inner class CardViewHolder(v: View) : RecyclerView.ViewHolder(v) {
             val img = v.findViewById<ImageView>(R.id.card_image)
             val txt = v.findViewById<TextView>(R.id.card_text)
+            val cover = v.findViewById<View>(R.id.card_cover)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
@@ -84,8 +94,9 @@ class CardActivityFragment : Fragment() {
         override fun onBindViewHolder(h: CardViewHolder, pos: Int) {
             val item = items[pos]
 
-            h.img.visibility = View.INVISIBLE
-            h.txt.visibility = View.INVISIBLE
+            h.img.visibility = View.GONE
+            h.txt.visibility = View.GONE
+            h.cover.visibility = View.VISIBLE
 
             if (item.isImage) {
                 h.img.setImageResource(item.value)
@@ -101,8 +112,9 @@ class CardActivityFragment : Fragment() {
     }
 
     // =============================================================
-    // LÓGICA DE CLICS
+    // LÓGICA DE VISIBILIDAD DE LA TAPA (Sin Cambios)
     // =============================================================
+
     private fun handleCardClick(card: View) {
         if (isBusy) return
         if (card == firstCard) return
@@ -122,43 +134,42 @@ class CardActivityFragment : Fragment() {
     }
 
     private fun showCard(card: View) {
+        card.findViewById<View>(R.id.card_cover).visibility = View.GONE
         card.findViewById<ImageView>(R.id.card_image).visibility = View.VISIBLE
         card.findViewById<TextView>(R.id.card_text).visibility = View.VISIBLE
-
-        card.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.card_default_bg)
-        )
     }
 
     private fun hideCard(card: View) {
         card.findViewById<ImageView>(R.id.card_image).visibility = View.INVISIBLE
         card.findViewById<TextView>(R.id.card_text).visibility = View.INVISIBLE
-
-        card.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), android.R.color.white)
-        )
+        card.findViewById<View>(R.id.card_cover).visibility = View.VISIBLE
     }
 
     // =============================================================
-    // VALIDACIÓN DE PARES
+    // VALIDACIÓN Y NAVEGACIÓN (Actualizado)
     // =============================================================
     private fun checkMatch() {
         val id1 = firstCard?.tag as Int
         val id2 = secondCard?.tag as Int
 
         if (id1 == id2) {
-            score += 30
+            // AUMENTAMOS EL CONTADOR DE PARES Y EL SCORE PARCIAL
+            pairsFound++
+            score += scorePerPair
 
             firstCard?.setOnClickListener(null)
             secondCard?.setOnClickListener(null)
 
             Toast.makeText(requireContext(), "¡Correcto!", Toast.LENGTH_SHORT).show()
 
-            if (score == 90) {
+            // 🎯 NUEVA LÓGICA: Comprobamos si se encontraron todos los pares
+            if (pairsFound == totalPairs) {
+                score = 100 // Establecemos el puntaje final en 100 exacto
                 goToScoreScreen()
             }
 
         } else {
+            // Si es incorrecto, llamamos a hideCard para taparlas con la Tapa Negra
             hideCard(firstCard!!)
             hideCard(secondCard!!)
         }
@@ -168,12 +179,8 @@ class CardActivityFragment : Fragment() {
         isBusy = false
     }
 
-    // =============================================================
-    // IR A LA PANTALLA DE SCORE
-    // =============================================================
     private fun goToScoreScreen() {
         val fragment = ScoreFragment.newInstance(category, score)
-
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
@@ -181,7 +188,7 @@ class CardActivityFragment : Fragment() {
     }
 
     // =============================================================
-    // DATOS DE LAS CARTAS (5 pares)
+    // DATOS DE LAS CARTAS (Sin Cambios)
     // =============================================================
     data class CardItem(
         val pairId: Int,
@@ -191,8 +198,8 @@ class CardActivityFragment : Fragment() {
     )
 
     private fun getCardsForCategory(cat: AnimalCategory): List<CardItem> {
+        // ... (Tu función de datos original sigue aquí)
         return when (cat) {
-
             AnimalCategory.TERRESTRES -> listOf(
                 CardItem(1, true, R.drawable.card_lion),
                 CardItem(1, false, 0, "Panthera leo"),
@@ -201,7 +208,6 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, true, R.drawable.card_dog),
                 CardItem(3, false, 0, "Canis lupus familiaris")
             )
-
             AnimalCategory.ACUATICOS -> listOf(
                 CardItem(1, true, R.drawable.card_shark),
                 CardItem(1, false, 0, "Carcharodon carcharias"),
@@ -210,7 +216,6 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, true, R.drawable.card_manatee),
                 CardItem(3, false, 0, "Trichechus manatus")
             )
-
             AnimalCategory.AEREOS -> listOf(
                 CardItem(1, true, R.drawable.card_eagle),
                 CardItem(1, false, 0, "Aquila chrysaetos"),
@@ -219,7 +224,6 @@ class CardActivityFragment : Fragment() {
                 CardItem(3, true, R.drawable.card_crow),
                 CardItem(3, false, 0, "Corvus corax"),
             )
-
             AnimalCategory.INSECTOS -> listOf(
                 CardItem(1, true, R.drawable.card_bee),
                 CardItem(1, false, 0, "Apis mellifera"),
